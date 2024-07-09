@@ -26,8 +26,8 @@ class ALData(with_metaclass(MetaALData, AbstractDataBase)):
         ('four_price_doji', False),  # False - не пропускать дожи 4-х цен, True - пропускать
         ('schedule', None),  # Расписание работы биржи. Если не задано, то берем из подписки
         ('live_bars', False),  # False - только история, True - история и новые бары
+        ('data_path', None), # Путь к папке с логами
     )
-    datapath = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Data', 'Alor', '')  # Путь сохранения файла истории
     delimiter = '\t'  # Разделитель значений в файле истории. По умолчанию табуляция
     dt_format = '%d.%m.%Y %H:%M'  # Формат представления даты и времени в файле истории. По умолчанию русский формат
     sleep_time_sec = 1  # Время ожидания в секундах, если не пришел новый бар. Для снижения нагрузки/энергопотребления процессора
@@ -45,9 +45,10 @@ class ALData(with_metaclass(MetaALData, AbstractDataBase)):
         self.portfolio = self.store.provider.get_account(self.board, self.p.account_id)['portfolio']  # Портфель тикера
         self.alor_timeframe = self.bt_timeframe_to_alor_timeframe(self.p.timeframe, self.p.compression)  # Конвертируем временной интервал из BackTrader в Алор
         self.tf = self.bt_timeframe_to_tf(self.p.timeframe, self.p.compression)  # Конвертируем временной интервал из BackTrader для имени файла истории и расписания
+        self.datapath = self.p.data_path or os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Data', 'Alor')  # Путь сохранения файла истории
         self.file = f'{self.board}.{self.symbol}_{self.tf}'  # Имя файла истории
         self.logger = logging.getLogger(f'ALData.{self.file}')  # Будем вести лог
-        self.file_name = f'{self.datapath}{self.file}.txt'  # Полное имя файла истории
+        self.file_name = f'{self.datapath}{os.sep}{self.file}.txt'  # Полное имя файла истории
         self.history_bars = []  # Исторические бары из файла и истории после проверки на соответствие условиям выборки
         self.guid = None  # Идентификатор подписки/расписания на историю цен
         self.exit_event = Event()  # Определяем событие выхода из потока
