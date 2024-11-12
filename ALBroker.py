@@ -272,7 +272,7 @@ class ALBroker(with_metaclass(MetaALBroker, BrokerBase)):
             limit_price = self.store.provider.price_to_valid_price(exchange, symbol, order.price) if order.data.derivative else self.store.provider.price_to_alor_price(exchange, symbol, order.price)  # Лимитная цена
             if order.data.derivative:  # Для деривативов
                 order.price = self.store.provider.alor_price_to_price(exchange, symbol, order.price)  # Сохраняем в заявку лимитную цену заявки в рублях за штуку
-            response = self.store.provider.create_limit_order(portfolio, exchange, symbol, side, quantity, limit_price)
+            response = self.store.provider.create_limit_order(portfolio, exchange, symbol, side, quantity, limit_price, time_in_force='OneDay')
         elif order.exectype == Order.Stop:  # Стоп заявка
             stop_price = self.store.provider.price_to_valid_price(exchange, symbol, order.price) if order.data.derivative else self.store.provider.price_to_alor_price(exchange, symbol, order.price)  # Стоп цена
             if order.data.derivative:  # Для деривативов
